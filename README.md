@@ -10,6 +10,7 @@ I am particularly proud of the fact that I am a lot more comfortable with the la
 # List of future enhancements I’d like to make
 
 - [ ] Add Code Documentation (The code is self-documented, but I am lacking in minimum documentation)
+- [ ] Add test Cases (I did not create any test cases)
 - [ ] Improve CLI Options Parser (I dont know if I did everythig like I should)
 - [ ] Double check some CLI principles like stdio, return code, etc, so DevOps people will be Happy (I believe is everything right but I did not execute enough test)
 - [ ] Improve CLI outputs
