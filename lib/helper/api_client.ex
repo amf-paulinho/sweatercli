@@ -22,8 +22,13 @@ defmodule Sweatercli.ApiClient do
     if cod == 200 do
       %{
         "main" => %{"feels_like" => feels_like},
-        "weather" => [%{"main" => weather}]
+        "weather" => allWeathers
       } = resp
+
+      weather =
+        allWeathers
+        |> Enum.map(&"#{&1["main"]}")
+        |> Enum.join(", ")
 
       suggest_clothing(configFile, feels_like, weather)
     else
