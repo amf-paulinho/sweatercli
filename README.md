@@ -14,10 +14,9 @@ I am particularly proud of the fact that I am a lot more comfortable with the la
 - [ ] Improve CLI Options Parser (I dont know if I did everythig like I should)
 - [ ] Double check some CLI principles like stdio, return code, etc, so DevOps people will be Happy (I believe is everything right but I did not execute enough test)
 - [ ] Improve CLI outputs
-- [ ] Handle Invalid Json File (I could not handle Pattern Matching erros)
-- [ ] Improve App Architecture (I did not Refactor anything, so I belive there are code breaking best practices)
+- [ ] Improve App Architecture (I did not Refactor anything yet, so I belive there are code that is breaking some best practices)
 - [ ] Improve Suggestions Output Algo to taking in consideration not just temperature
-- [ ] Add Authentication
+- [ ] Maybe Add Authentication like a Key and Secret
 - [ ] Add new feature: Look up for Zip Code (I couldo do it, but I did note have the time)
 - [ ] Add new feature: Look up for GPS coordinates (I couldo do it, but I did note have the time)
 

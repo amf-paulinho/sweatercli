@@ -45,51 +45,33 @@ defmodule Sweatercli.ApiClient do
     else
       case File.read(configFile) do
         {:ok, body} ->
-          try do
-            %{"recommendations" => config} = Poison.decode!(body, as: %{})
+          case Poison.decode!(body, as: %{}) do
+            %{"recommendations" => config} ->
+              print_results(configFile, config, feels_like, weather)
 
-            recomendations =
-              Enum.filter(config, fn x ->
-                feels_like >= x["min_temp"] && feels_like <= x["max_temp"]
-              end)
-
-            info("")
-            warn("Weather for your Location:")
-            info("\tFells Like: #{feels_like} F (#{weather})")
-            info("")
-            warn("We recomend bringing with you:")
-            Enum.each(recomendations, fn %{"name" => name} -> info("\t* #{name};") end)
-            info("")
-
-            infonoreturn("S2 Scriptdrop - ")
-            fun("Making Prescriptions Accessible")
-            info("")
-            debug("Have a great day ! Drive safe.")
-            info("")
-          catch
-            _x ->
-              error("ERR: Invalid conficuration file '#{configFile}'.")
+            _ ->
+              error("ERR: Invalid configuration file '#{configFile}'.")
               info("")
-              info("FILE EXAMPLE")
               info("")
-              info("---------------------------------")
+              warn("FILE EXAMPLE:")
+              info("")
+              info("----------------------------[BEGIN]--")
               debug("{")
-              debug("	\"recommendations\": [")
-              debug("		{")
-              debug("\"name\": \"Sunglasses\",")
-              debug("\"waterproof\": false,")
-              debug("\"min_temp\": 75,")
-              debug("\"max_temp\": 100")
-              debug("},")
-              debug("{")
-              debug("\"name\": \"Rain Jacket\",")
-              debug("\"waterproof\": true,")
-              debug("\"min_temp\": 62,")
-              debug("\"max_temp\": 80")
+              debug("\t\"recommendations\": [")
+              debug("\t{")
+              debug("\t\t\"name\": \"Sunglasses\",")
+              debug("\t\t\"waterproof\": false,")
+              debug("\t\t\"min_temp\": 75,")
+              debug("\t\t\"max_temp\": 100")
+              debug("\t},")
+              debug("\t{")
+              debug("\t\t\"name\": \"Rain Jacket\",")
+              debug("\t\t\"waterproof\": true,")
+              debug("\t\t\"min_temp\": 62,")
+              debug("\t\t\"max_temp\": 80")
+              debug("\t}]")
               debug("}")
-              debug("]")
-              debug("}")
-              info("---------------------------------")
+              info("------------------------------[END]--")
               info("")
               System.halt(1)
           end
@@ -99,5 +81,36 @@ defmodule Sweatercli.ApiClient do
           System.halt(1)
       end
     end
+  end
+
+  defp print_results(configFile, config, feels_like, weather) do
+    recomendations =
+      Enum.filter(config, fn x ->
+        feels_like >= x["min_temp"] && feels_like <= x["max_temp"]
+      end)
+
+    info("")
+    warn("Weather for your Location:")
+    info("\tFells Like: #{feels_like} F (#{weather})")
+    info("")
+    warn("We recomend bringing with you:")
+
+    if recomendations == [] do
+      info(
+        "\tYou have no recomendations. (Check the fields: min_temp and max_temp in your config File: #{
+          configFile
+        })"
+      )
+    else
+      Enum.each(recomendations, fn %{"name" => name} -> info("\t* #{name};") end)
+    end
+
+    info("")
+
+    infonoreturn("S2 Scriptdrop - ")
+    fun("Making Prescriptions Accessible")
+    info("")
+    debug("Have a great day ! Drive safe.")
+    info("")
   end
 end
