@@ -9,10 +9,10 @@ defmodule Sweatercli do
   ## Examples
 
       iex> Sweatercli.hello()
-      :world
+      :IllBuildRestAPIThatsConsumeCLI
 
   """
   def hello do
-    :world
+    :IllBuildRestAPIThatsConsumeCLI
   end
 end

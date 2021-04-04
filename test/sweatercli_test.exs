@@ -3,6 +3,6 @@ defmodule SweatercliTest do
   doctest Sweatercli
 
   test "greets the world" do
-    assert Sweatercli.hello() == :world
+    assert Sweatercli.hello() == :IllBuildRestAPIThatsConsumeCLI
   end
 end
