@@ -9,8 +9,6 @@ defmodule Sweatercli.CLI do
     Application.put_env(:elixir, :ansi_enabled, true)
 
     args |> Enum.sort() |> parse_args |> process_args
-
-    System.stop(0)
   end
 
   defp parse_args(args) do
@@ -75,6 +73,7 @@ defmodule Sweatercli.CLI do
             case Sweatercli.SuggestionEngine.start(Sweatercli.OpenWeather, jsonConfig, location) do
               {:ok, suggestions} ->
                 {:ok, suggestions}
+                System.stop(0)
 
               {:error, response} ->
                 error("ERR: open weather returned a error.")
