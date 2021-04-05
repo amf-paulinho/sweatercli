@@ -24,11 +24,6 @@ defmodule Sweatercli.CLI do
     {opts, rest, invalid}
   end
 
-  def x do
-    :invalid_options
-    System.halt(1)
-  end
-
   defp process_args({_opts, _params, [_ | _] = invalid}) do
     error("ERR: Invalid Options !")
     IO.inspect(invalid, label: nil)
@@ -64,12 +59,37 @@ defmodule Sweatercli.CLI do
 
   defp process_args({opts, params, []}) do
     if not Enum.empty?(params) do
-      warn("Ignoring unknow parameters: #{Enum.join(params, ", ")}")
+      debug("Ignoring unknow parameters: #{Enum.join(params, ", ")}")
     end
 
     case opts do
       [file: file, location: location] ->
-        Sweatercli.SuggestionEngine.start(Sweatercli.OpenWeather, file, location)
+        case Sweatercli.ConfigurationFile.get_config_json(file) do
+          {:error, :file_not_found} ->
+            error("ERR: Trying to use '#{file}' configuration file, but it does not exists.")
+            System.halt(1)
+
+          {:ok, jsonConfig} ->
+            debug("using configuration file: #{file}")
+
+            case Sweatercli.SuggestionEngine.start(Sweatercli.OpenWeather, jsonConfig, location) do
+              {:ok, suggestions} ->
+                {:ok, suggestions}
+
+              {:error, response} ->
+                error("ERR: open weather returned a error.")
+                IO.inspect(response, label: "open weather response")
+                System.halt(1)
+            end
+
+          {:error, :invalid_config_file} ->
+            Sweatercli.ConfigurationFile.print_invalid_config_file_help(file)
+            System.halt(1)
+
+          {:error, :io_error} ->
+            error("ERR: error trying to read configuration file '#{file}'.")
+            System.halt(1)
+        end
 
       [location: location] ->
         process_args({[file: default_config_file(), location: location], params, []})
@@ -142,14 +162,11 @@ defmodule Sweatercli.CLI do
     info("\thttps://www.linkedin.com/in/amfpaulo/")
     info("")
     warn("TODO LIST")
-    info("\t* Improve CLI Options Parser")
     info("\t* Improve CLI outputs")
-    info("\t* Handle Invalid Json File")
-    info("\t* Improve App Architecture")
     info("\t* Improve Suggestions Algo taking")
     info("\t  in consideration not just temperature")
     info("\t* Check configuration File")
-    info("\t* Add Authentication")
+    info("\t* Add Authentication using key and secret")
     info("\t* Add new feature: Look up for Zip Code")
     info("\t* Add new feature: Look up for GPS coordinates")
     info("")

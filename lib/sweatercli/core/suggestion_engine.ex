@@ -1,7 +1,7 @@
 defmodule Sweatercli.SuggestionEngine do
   import Sweatercli.Output
 
-  def start(openWeatheBehavior, configFile, location) do
+  def start(openWeatheBehavior, jsonConfig, location) do
     [city, state, country] = String.split(location, "/")
 
     resp = openWeatheBehavior.call_api(city, state, country)
@@ -19,54 +19,28 @@ defmodule Sweatercli.SuggestionEngine do
         |> Enum.map(&"#{&1["main"]}")
         |> Enum.join(", ")
 
-      suggest_clothing(configFile, feels_like, weather)
-
-      :ok
+      find_clothing_suggestions(jsonConfig, feels_like, weather)
     else
-      error("ERR: open weather returned a error.")
-      IO.inspect(resp, label: "result")
-      :error
-      System.halt(1)
+      {:error, resp}
     end
   end
 
-  def suggest_clothing(configFile, feels_like, weather) do
-    if not File.exists?(configFile) do
-      error("ERR: Trying to use '#{configFile}' configuration file, but it does not exists.")
-      :error_file_not_found
-      System.halt(1)
-    else
-      case File.read(configFile) do
-        {:ok, body} ->
-          case Poison.decode!(body, as: %{}) do
-            %{"recommendations" => config} ->
-              print_results(
-                configFile,
-                Enum.filter(config, fn x ->
-                  feels_like >= x["min_temp"] && feels_like <= x["max_temp"]
-                end),
-                feels_like,
-                weather
-              )
+  def find_clothing_suggestions(jsonConfig, feels_like, weather) do
+    suggestions =
+      Enum.filter(jsonConfig, fn x ->
+        feels_like >= x["min_temp"] && feels_like <= x["max_temp"]
+      end)
 
-              :ok
+    print_results(
+      suggestions,
+      feels_like,
+      weather
+    )
 
-            _ ->
-              invalid_config_file(configFile)
-              :error_invalid_config_file
-          end
-
-        {:error, :enoent} ->
-          error("ERR: error trying to read configuration file '#{configFile}'.")
-          :error_io_error
-          System.halt(1)
-      end
-    end
-
-    :ok
+    {:ok, suggestions}
   end
 
-  def print_results(configFile, recomendations, feels_like, weather) do
+  def print_results(recomendations, feels_like, weather) do
     info("")
     warn("Weather for your Location:")
     info("\tFells Like: #{feels_like} F (#{weather})")
@@ -75,9 +49,7 @@ defmodule Sweatercli.SuggestionEngine do
 
     if recomendations == [] do
       info(
-        "\tYou have no recomendations. (Check the fields: min_temp and max_temp in your config File: #{
-          configFile
-        })"
+        "\tYou have no recomendations. (Check the fields: min_temp and max_temp in your config File)"
       )
     else
       Enum.each(recomendations, fn %{"name" => name} -> info("\t* #{name};") end)
@@ -92,32 +64,5 @@ defmodule Sweatercli.SuggestionEngine do
     info("")
 
     :ok
-  end
-
-  defp invalid_config_file(configFile) do
-    error("ERR: Invalid configuration file '#{configFile}'.")
-    info("")
-    info("")
-    warn("FILE EXAMPLE:")
-    info("")
-    info("----------------------------[BEGIN]--")
-    debug("{")
-    debug("\t\"recommendations\": [")
-    debug("\t{")
-    debug("\t\t\"name\": \"Sunglasses\",")
-    debug("\t\t\"waterproof\": false,")
-    debug("\t\t\"min_temp\": 75,")
-    debug("\t\t\"max_temp\": 100")
-    debug("\t},")
-    debug("\t{")
-    debug("\t\t\"name\": \"Rain Jacket\",")
-    debug("\t\t\"waterproof\": true,")
-    debug("\t\t\"min_temp\": 62,")
-    debug("\t\t\"max_temp\": 80")
-    debug("\t}]")
-    debug("}")
-    info("------------------------------[END]--")
-    info("")
-    System.halt(1)
   end
 end
