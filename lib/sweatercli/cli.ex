@@ -8,7 +8,13 @@ defmodule Sweatercli.CLI do
   def main(args) do
     Application.put_env(:elixir, :ansi_enabled, true)
 
-    args |> Enum.sort() |> parse_args |> process_args
+    exitCode =
+      args
+      |> Enum.sort()
+      |> parse_args
+      |> process_args(Sweatercli.ConfigurationFile, Sweatercli.OpenWeather)
+
+    if exitCode == exit_success(), do: System.stop(exitCode), else: System.halt(exitCode)
   end
 
   defp parse_args(args) do
@@ -19,22 +25,24 @@ defmodule Sweatercli.CLI do
 
     {opts, rest, invalid} = OptionParser.parse(args, options)
 
+    # IO.inspect({opts, rest, invalid})
+
     {opts, rest, invalid}
   end
 
-  defp process_args({_opts, _params, [_ | _] = invalid}) do
+  def process_args({_opts, _params, [_ | _] = invalid}, _serviceConfig, _serviceOpenWeather) do
     error("ERR: Invalid Options !")
     IO.inspect(invalid, label: nil)
-    :invalid_options
-    System.halt(1)
+
+    exit_error_invalid_options()
   end
 
-  defp process_args({[help: true], [], []}) do
+  def process_args({[help: true], [], []}, _serviceConfig, _serviceOpenWeather) do
     print_help()
-    :print_help
+    exit_success()
   end
 
-  defp process_args({[queryuser: true], [], []}) do
+  def process_args({[queryuser: true], [], []}, serviceConfig, serviceOpenWeather) do
     info("")
     success("Starting User interface")
     success("-----------------------")
@@ -51,53 +59,61 @@ defmodule Sweatercli.CLI do
         do: default_location(),
         else: String.trim(inputLocation)
 
-    process_args({[file: configFile, location: location], [], []})
-    :user_interface
+    process_args(
+      {[file: configFile, location: location], [], []},
+      serviceConfig,
+      serviceOpenWeather
+    )
   end
 
-  defp process_args({opts, params, []}) do
+  # This is the only function you supposed to be
+  # adding new features for the CLI (new command line options )
+  def process_args({opts, params, []}, serviceConfig, serviceOpenWeather) do
     if not Enum.empty?(params) do
       debug("Ignoring unknow parameters: #{Enum.join(params, ", ")}")
     end
 
     case opts do
       [file: file, location: location] ->
-        case Sweatercli.ConfigurationFile.get_config_json(file) do
+        case serviceConfig.get_config_json(file) do
           {:error, :file_not_found} ->
             error("ERR: Trying to use '#{file}' configuration file, but it does not exists.")
-            System.halt(1)
+            exit_error_config_file_not_found()
 
           {:ok, jsonConfig} ->
             debug("using configuration file: #{file}")
 
-            case Sweatercli.SuggestionEngine.start(Sweatercli.OpenWeather, jsonConfig, location) do
+            case Sweatercli.SuggestionEngine.start(serviceOpenWeather, jsonConfig, location) do
               {:ok, suggestions} ->
                 {:ok, suggestions}
-                System.stop(0)
+                exit_success()
 
               {:error, response} ->
                 error("ERR: open weather returned a error.")
                 IO.inspect(response, label: "open weather response")
-                System.halt(1)
+                exit_error_open_weather_fail()
             end
 
           {:error, :invalid_config_file} ->
             Sweatercli.ConfigurationFile.print_invalid_config_file_help(file)
-            System.halt(1)
+            exit_error_invalid_config_file()
 
           {:error, :io_error} ->
             error("ERR: error trying to read configuration file '#{file}'.")
-            System.halt(1)
+            exit_error_config_io_error()
         end
 
       [location: location] ->
-        process_args({[file: default_config_file(), location: location], params, []})
+        process_args(
+          {[file: default_config_file(), location: location], params, []},
+          serviceConfig,
+          serviceOpenWeather
+        )
 
       _ ->
         wrongOptions()
+        exit_error_wrong_options_combination()
     end
-
-    :command_line
   end
 
   # ------------------------------------------------------------
@@ -110,7 +126,6 @@ defmodule Sweatercli.CLI do
     error("Wrong Options combination! Please, read the Help:")
     info("")
     print_help()
-    System.halt(1)
   end
 
   # ----------------------------------------

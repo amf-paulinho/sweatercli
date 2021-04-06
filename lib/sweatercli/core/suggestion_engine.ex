@@ -47,6 +47,8 @@ defmodule Sweatercli.SuggestionEngine do
     info("")
     warn("We recomend bringing with you:")
 
+    resultLst = []
+
     if recomendations == [] do
       info(
         "\tYou have no recomendations. (Check the fields: min_temp and max_temp in your config File)"
@@ -63,6 +65,6 @@ defmodule Sweatercli.SuggestionEngine do
     debug("Have a great day ! Drive safe.")
     info("")
 
-    :ok
+    {:ok, resultLst}
   end
 end
