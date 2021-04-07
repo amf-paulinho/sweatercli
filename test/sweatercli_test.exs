@@ -230,7 +230,7 @@ defmodule SweatercliTest do
     end
   end
 
-  test "01 - test CLI main process - Yellow Brick Path" do
+  test "Sweatercli.CLI.process_args::Yellow Brick Path::Return 0" do
     assert Sweatercli.CLI.process_args(
              {[file: "", location: "Juneau/AK/US"], [], []},
              SweatercliTest.GoodConfigurationFileMock,
@@ -238,7 +238,7 @@ defmodule SweatercliTest do
            ) == Sweatercli.AppConstants.exit_success()
   end
 
-  test "02 - test CLI main process using Bad Config File" do
+  test "Sweatercli.CLI.process_args::Using Bad Config File::Return 21" do
     assert Sweatercli.CLI.process_args(
              {[file: "", location: "Juneau/AK/US"], [], []},
              SweatercliTest.BadConfigurationFileMock,
@@ -246,7 +246,7 @@ defmodule SweatercliTest do
            ) == Sweatercli.AppConstants.exit_error_invalid_config_file()
   end
 
-  test "03 - test CLI main process open weather fail (Cod != 200)" do
+  test "Sweatercli.CLI.process_args::Wrong location::Return 30" do
     assert Sweatercli.CLI.process_args(
              {[file: "", location: "GhostCityXPT/XX/ZZ"], [], []},
              SweatercliTest.GoodConfigurationFileMock,
@@ -254,7 +254,7 @@ defmodule SweatercliTest do
            ) == Sweatercli.AppConstants.exit_error_open_weather_fail()
   end
 
-  test "04 - test CLI main process using Wrong Options Combination" do
+  test "Sweatercli.CLI.process_args::Wrong options combination::Return 11" do
     assert Sweatercli.CLI.process_args(
              {[file: "", location: "Juneau/AK/US", help: true], [], []},
              SweatercliTest.GoodConfigurationFileMock,
@@ -262,7 +262,7 @@ defmodule SweatercliTest do
            ) == Sweatercli.AppConstants.exit_error_wrong_options_combination()
   end
 
-  test "05 - test CLI main process using Invalid Options" do
+  test "Sweatercli.CLI.process_args::Invalid Options::Return 10" do
     assert Sweatercli.CLI.process_args(
              {[], [], [unknowoption: "random"]},
              SweatercliTest.GoodConfigurationFileMock,
@@ -270,7 +270,7 @@ defmodule SweatercliTest do
            ) == Sweatercli.AppConstants.exit_error_invalid_options()
   end
 
-  test "97 - Cold Suggestion Validation 25.2 F" do
+  test "Sweatercli.SuggestionEngine.find_clothing_suggestions::Cold Weather 25.2 F" do
     {:ok, jsonConfig} = SweatercliTest.GoodConfigurationFileMock.get_config_json("")
     feels_like = 25.2
     weather = ""
@@ -302,7 +302,7 @@ defmodule SweatercliTest do
     assert suggestions == expecting
   end
 
-  test "98 - Cool Suggestion Validation 65.07 F" do
+  test "Sweatercli.SuggestionEngine.find_clothing_suggestions::Cool Weather 65.07 F" do
     {:ok, jsonConfig} = SweatercliTest.GoodConfigurationFileMock.get_config_json("")
     feels_like = 65.07
     weather = ""
@@ -334,7 +334,7 @@ defmodule SweatercliTest do
     assert suggestions == expecting
   end
 
-  test "99 - Warm Suggestion Validation 78.6 F" do
+  test "Sweatercli.SuggestionEngine.find_clothing_suggestions::Warm Weather 78.6 F" do
     {:ok, jsonConfig} = SweatercliTest.GoodConfigurationFileMock.get_config_json("")
     feels_like = 78.6
     weather = ""
