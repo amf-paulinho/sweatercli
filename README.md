@@ -9,14 +9,14 @@ I am particularly proud of the fact that I am a lot more comfortable with the la
 
 # List of future enhancements I’d like to make
 
-- [ ] Add Code Documentation (The code is self-documented, but I am lacking in minimum documentation)
-- [ ] Add 3 more test Cases that I havent time do finish (using doctest)
 - [ ] Double check some CLI principles like stdio, return code, etc, so DevOps people will be Happy (I believe is everything right but I did not execute enough test)
 - [ ] Improve CLI outputs
 - [ ] Improve Suggestions Output Algo to taking in consideration not just temperature
 - [ ] Maybe Add Authentication like a Key and Secret
 - [ ] Add new feature: Look up for Zip Code (I couldo do it, but I did note have the time)
 - [ ] Add new feature: Look up for GPS coordinates (I couldo do it, but I did note have the time)
+- [ ] Add Code Documentation (The code is self-documented, but I am lacking in minimum documentation)
+- [ ] Add 1 more test Cases that I havent time do finish (using doctest)
 - [x] Improve CLI Options Parser (I dont know if I did everythig like I should)
 - [x] Improve App Architecture (I did not Refactor anything yet, so I belive there are code that is breaking some best practices)
 

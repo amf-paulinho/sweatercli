@@ -84,8 +84,7 @@ defmodule Sweatercli.CLI do
             debug("using configuration file: #{file}")
 
             case Sweatercli.SuggestionEngine.start(serviceOpenWeather, jsonConfig, location) do
-              {:ok, suggestions} ->
-                {:ok, suggestions}
+              {:ok, _suggestions} ->
                 exit_success()
 
               {:error, response} ->

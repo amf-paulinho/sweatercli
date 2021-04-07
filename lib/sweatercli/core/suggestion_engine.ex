@@ -47,14 +47,14 @@ defmodule Sweatercli.SuggestionEngine do
     info("")
     warn("We recomend bringing with you:")
 
-    resultLst = []
-
     if recomendations == [] do
       info(
         "\tYou have no recomendations. (Check the fields: min_temp and max_temp in your config File)"
       )
     else
-      Enum.each(recomendations, fn %{"name" => name} -> info("\t* #{name};") end)
+      Enum.each(recomendations, fn %{"name" => name} ->
+        info("\t* #{name};")
+      end)
     end
 
     info("")
@@ -64,7 +64,5 @@ defmodule Sweatercli.SuggestionEngine do
     info("")
     debug("Have a great day ! Drive safe.")
     info("")
-
-    {:ok, resultLst}
   end
 end

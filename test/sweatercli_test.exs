@@ -270,12 +270,99 @@ defmodule SweatercliTest do
            ) == Sweatercli.AppConstants.exit_error_invalid_options()
   end
 
-  test "99 - test Core Engine Logic in some scenarios" do
-    #todo: Create 2 or 3 tests matching results against data informed
-    assert true;
+  test "97 - Cold Suggestion Validation 25.2 F" do
+    {:ok, jsonConfig} = SweatercliTest.GoodConfigurationFileMock.get_config_json("")
+    feels_like = 25.2
+    weather = ""
+
+    expecting = [
+      %{
+        "max_temp" => 40,
+        "min_temp" => 0,
+        "name" => "Heavy Coat",
+        "waterproof" => true
+      },
+      %{
+        "max_temp" => 90,
+        "min_temp" => 25,
+        "name" => "Comfortable Shoes",
+        "waterproof" => false
+      },
+      %{
+        "max_temp" => 35,
+        "min_temp" => 0,
+        "name" => "Snow Boots",
+        "waterproof" => true
+      }
+    ]
+
+    {:ok, suggestions} =
+      Sweatercli.SuggestionEngine.find_clothing_suggestions(jsonConfig, feels_like, weather)
+
+    assert suggestions == expecting
   end
 
+  test "98 - Cool Suggestion Validation 65.07 F" do
+    {:ok, jsonConfig} = SweatercliTest.GoodConfigurationFileMock.get_config_json("")
+    feels_like = 65.07
+    weather = ""
 
+    expecting = [
+      %{
+        "max_temp" => 80,
+        "min_temp" => 62,
+        "name" => "Rain Jacket",
+        "waterproof" => true
+      },
+      %{
+        "max_temp" => 68,
+        "min_temp" => 50,
+        "name" => "Sweater",
+        "waterproof" => false
+      },
+      %{
+        "max_temp" => 90,
+        "min_temp" => 25,
+        "name" => "Comfortable Shoes",
+        "waterproof" => false
+      }
+    ]
 
+    {:ok, suggestions} =
+      Sweatercli.SuggestionEngine.find_clothing_suggestions(jsonConfig, feels_like, weather)
 
+    assert suggestions == expecting
+  end
+
+  test "99 - Warm Suggestion Validation 78.6 F" do
+    {:ok, jsonConfig} = SweatercliTest.GoodConfigurationFileMock.get_config_json("")
+    feels_like = 78.6
+    weather = ""
+
+    expecting = [
+      %{
+        "max_temp" => 100,
+        "min_temp" => 75,
+        "name" => "Sunglasses",
+        "waterproof" => false
+      },
+      %{
+        "max_temp" => 80,
+        "min_temp" => 62,
+        "name" => "Rain Jacket",
+        "waterproof" => true
+      },
+      %{
+        "max_temp" => 90,
+        "min_temp" => 25,
+        "name" => "Comfortable Shoes",
+        "waterproof" => false
+      }
+    ]
+
+    {:ok, suggestions} =
+      Sweatercli.SuggestionEngine.find_clothing_suggestions(jsonConfig, feels_like, weather)
+
+    assert suggestions == expecting
+  end
 end
